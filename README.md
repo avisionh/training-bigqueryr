@@ -1,5 +1,4 @@
-# Training: Using BigQuery with R 👩
-💻
+# Training: Using BigQuery with R 👩💻
 
 Welcome to this repository of training materials for working with BigQuery in R.
 
@@ -8,8 +7,7 @@ The training materials will be written using a mixture of the below:
 - R
 - SQL (the BigQuery flavour)
 
-## Who are these training materials for? 🙋
-♀️
+## Who are these training materials for? 🙋♀️
 
 These training materials are designed for people who wish to query their Google [BigQuery](https://cloud.google.com/bigquery/) database using R.
 
