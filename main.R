@@ -19,13 +19,7 @@ sapply(X = vector_packages, FUN = library, character.only = TRUE)
 
 # low-level API
 id_project <- "training-265812"
-sql_test <- "
-  SELECT visitorId
-    ,visitStartTime
-    ,date
-    ,totals
-  FROM `bigquery-public-data.google_analytics_sample.ga_sessions_20170801`
-"
+sql_test <- "SELECT visitorId, visitStartTime, date,totals.visits FROM `bigquery-public-data.google_analytics_sample.ga_sessions_20170801`"
 
 # Low-level API -----------------------------------------------------------
 
@@ -39,4 +33,9 @@ conn_projecttraining <- dbConnect(drv = bigquery(),
                                   project = "bigquery-public-data",
                                   dataset = "google_analytics_sample",
                                   billing = id_project)
+# list tables in dataset
 dbListTables(conn = conn_projecttraining)
+
+# run query in BigQuery and store results in-memory
+data_test <- dbGetQuery(conn_projecttraining, sql_test)
+
