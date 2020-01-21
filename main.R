@@ -13,7 +13,10 @@
 vector_packages <- c(
   "bigrquery", 
   "DBI", 
-  "dplyr"
+  "dbplyr",
+  "dplyr",
+  "tidyr",
+  "purrr"
 )
 sapply(X = vector_packages, FUN = library, character.only = TRUE)
 
@@ -37,5 +40,25 @@ conn_projecttraining <- dbConnect(drv = bigquery(),
 dbListTables(conn = conn_projecttraining)
 
 # run query in BigQuery and store results in-memory
-data_test <- dbGetQuery(conn_projecttraining, sql_test)
+data_test <- dbGetQuery(conn = conn_projecttraining, statement = sql_test)
 
+
+# Using dplyr -------------------------------------------------------------
+
+# pull table descriptors from BigQuery
+data_gasessions <- tbl(src = conn_projecttraining, "bigquery-public-data.google_analytics_sample.ga_sessions_20170801")
+# pull table descriptors and treat like a table
+# are querying directly from BigQuery so cost overheads are lower
+data_gasessions %>% 
+  select(visitId, visitStartTime, date, totals) %>%
+  # save results into a tibble so we can unnest
+  collect() %>% 
+  # preserve named lists for eventual column name output via conversion to data.frame/tibble
+  mutate(totals = invoke_map(.f = tibble, .x = totals)) %>% 
+  # unnest columns with lists in them
+  unnest(totals) %>% 
+  group_by(date) %>% 
+  summarise(visits = sum(x = visits, na.rm = TRUE),
+            hits = sum(x = hits, na.rm = TRUE),
+            pageviews = sum(x = pageviews, na.rm = TRUE))
+ 
