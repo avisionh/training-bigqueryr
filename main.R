@@ -18,7 +18,7 @@ vector_packages <- c(
   "tidyr",
   "purrr"
 )
-sapply(X = vector_packages, FUN = library, character.only = TRUE)
+sapply(X = vector_packages, FUN = require, character.only = TRUE)
 
 # low-level API
 id_project <- "training-265812"
