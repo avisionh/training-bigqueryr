@@ -20,9 +20,12 @@ vector_packages <- c(
 )
 sapply(X = vector_packages, FUN = require, character.only = TRUE)
 
+# authorise Gmail
+bq_auth()
+
 # low-level API
 id_project <- "training-265812"
-sql_test <- "SELECT visitorId, visitStartTime, date,totals.visits FROM `bigquery-public-data.google_analytics_sample.ga_sessions_20170801`"
+query_sql <- func_readsql(file = "queries/data_ga_samples,sql")
 
 # Low-level API -----------------------------------------------------------
 
@@ -40,16 +43,23 @@ conn_projecttraining <- dbConnect(drv = bigquery(),
 dbListTables(conn = conn_projecttraining)
 
 # run query in BigQuery and store results in-memory
-data_test <- dbGetQuery(conn = conn_projecttraining, statement = sql_test)
+data_test <- dbGetQuery(conn = conn_projecttraining, statement = query_sql)
 
 
 # Using dplyr -------------------------------------------------------------
+conn_projecttraining <- src_bigquery(project = "bigquery-public-data",
+                                     dataset = "google_analytics_sample",
+                                     billing = id_project)
+
+ref <- bq_table(project = "bigquery-public-data", dataset = "google_analytics_sample", table = "ga_sessions_20170801")
+
+
 
 # pull table descriptors from BigQuery
-data_gasessions <- tbl(src = conn_projecttraining, "bigquery-public-data.google_analytics_sample.ga_sessions_20170801")
+data_gasessions <- tbl(src = conn_projecttraining, "ga_sessions_20170801")
 # pull table descriptors and treat like a table
 # are querying directly from BigQuery so cost overheads are lower
-data_gasessions %>% 
+data_gasessions %>% bq_table_size()
   select(visitId, visitStartTime, date, totals) %>%
   # save results into a tibble so we can unnest
   collect() %>% 
